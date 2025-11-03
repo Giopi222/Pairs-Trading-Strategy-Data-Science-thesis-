@@ -25,7 +25,7 @@ def stima_QR_EM(df_train, em_iter=50): # Estimate Q and R
     H[:, 0, 0] = 1.0
     H[:, 0, 1] = x
 
-    kf = KalmanFilter(      # kf.em() 
+    kf = KalmanFilter(     
         transition_matrices=A,
         observation_matrices=H,
         initial_state_mean=[0.0, 1.0],
