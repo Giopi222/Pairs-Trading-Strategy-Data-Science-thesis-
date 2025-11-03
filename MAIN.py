@@ -15,7 +15,7 @@ entry_t = 0.6
 exit_t  = 0.5
 
 # 1. Kalman filter
-def stima_QR_EM(df_train, em_iter=50): # Stima Q e R
+def stima_QR_EM(df_train, em_iter=50): # Estimate Q and R
     y = df_train.iloc[:, 0].values.reshape(-1, 1)
     x = df_train.iloc[:, 1].values
     n_obs = len(df_train)
@@ -76,7 +76,7 @@ df['beta_t']    = beta_t
 df['spread_kf'] = spread_kf
 
 
-# 2. Standardizzazione spread
+# 2. Spread Standardization
 window_size = 60 # half life x3
 spread_kf = df['spread_kf']
 rm = spread_kf.rolling(window_size, min_periods=1).mean().shift(1)
@@ -91,7 +91,7 @@ df['z_kf'] = zscore_kf
 df.drop(columns=['spread_kf'], inplace=True)
 
 
-# 3. Hidden markov model
+# 3. Hidden Markov Model
 window = 315
 zs = df['z_kf'].values.reshape(-1, 1)   # (T, 1)
 n = len(zs)
@@ -114,17 +114,17 @@ def remap(state_arr):
 regimes = np.empty(n - window, dtype=int)
 
 for i in range(n - window):
-    # Sequenza fino a "oggi" (o usa una finestra scorrevole)
+    # Sequence till today
     seq = zs[i : i + window + 1]        
-    states = model.predict(seq)           # Viterbi sulla sequenza
-    regimes[i] = remap(states)[-1]        # ultimo stato = stato di "oggi"
+    states = model.predict(seq)           # Viterbi 
+    regimes[i] = remap(states)[-1]        # last state = today state
 
 df = df.iloc[window:].copy()
 df['regime'] = regimes
 
 
 
-# 4. Generazione segnali
+# 4. Signals generation
 def generate_signals(df, entry_thresh, exit_thresh, HMM=True):
     sig = np.zeros(len(df), dtype=int)
     position = 0
@@ -168,11 +168,11 @@ df['signal'] = generate_signals(df, entry_thresh=entry_t, exit_thresh=exit_t, HM
 
 # 5. Backtest 
 
-# Prezzi
+# Prices
 y_ticker, x_ticker = tickers[:2]                
 prices = df[[y_ticker, x_ticker]].astype(float)
 
-# Pesi
+# Weights
 beta_lag = df['beta_t'].shift(1).ffill().clip(-10, 10)
 pos = df['signal'].fillna(0.0) # vbt fa già lo shift(1) 
 gross = 1.0 + beta_lag.abs()
@@ -211,5 +211,5 @@ wanted = [
 ]
 subset = [m for m in wanted if m in stats.index]
 print(stats.loc[subset].to_string())
-#print(pf.stats()) # statistiche complete
+#print(pf.stats()) # complete stats
 #pf.plot().show()
