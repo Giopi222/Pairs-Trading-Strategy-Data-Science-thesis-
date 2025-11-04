@@ -47,7 +47,7 @@ def kalman_spread(df, Q, R):
 
     A = np.eye(2)                                    # Transition Matrix  
 
-    # Observation matrices pre-computate
+    # pre-computed observation matrices 
     observation_matrices = np.zeros((n_obs, 1, 2))
     observation_matrices[:, 0, 0] = 1.0
     observation_matrices[:, 0, 1] = x_vals
@@ -57,8 +57,8 @@ def kalman_spread(df, Q, R):
         observation_matrices=observation_matrices,  
         initial_state_mean=[0.0, 1.0],
         initial_state_covariance=np.eye(2) * 100,     
-        transition_covariance = Q,                    # rumore di processo
-        observation_covariance = R                    # rumore di osservazione
+        transition_covariance = Q,                    # process noise
+        observation_covariance = R                    # observation noise
     )
 
     state_means, _ = kf.filter(y_vals.reshape(-1, 1))  
@@ -133,21 +133,19 @@ def generate_signals(df, entry_thresh, exit_thresh, HMM=True):
         z = df.loc[df.index[i], 'z_kf']
         regime = df.loc[df.index[i], 'regime']
         
-        if HMM: # ACCESO
+        if HMM: # ON
             if regime == 1: 
                 position = 0           
             else:
-                if position == 0:
-                    # se non ho posizione, cerco quando entrare
+                if position == 0: # (no position)
                     if z >= entry_thresh:
-                        position = -1  # spread alto → short 
+                        position = -1  # short 
                     elif z <= -entry_thresh:
-                        position = 1   # spread basso → long 
-                else:
-                    # se ho già posizione, cerco quando uscire
+                        position = 1   # long 
+                else:             # (already have a position)
                     if abs(z) < exit_thresh:
-                        position = 0   # zscore ha ritracciato → chiudo
-        else:   # SPENTO
+                        position = 0   
+        else:   # OFF
                 if position == 0:
                     if z >= entry_thresh:
                         position = -1  
@@ -161,8 +159,6 @@ def generate_signals(df, entry_thresh, exit_thresh, HMM=True):
 
     return sig
 
-df['signal'] = generate_signals(df, entry_thresh=entry_t, exit_thresh=exit_t, HMM=True) # already shifted by VBT
-
 
 
 
@@ -174,7 +170,7 @@ prices = df[[y_ticker, x_ticker]].astype(float)
 
 # Weights
 beta_lag = df['beta_t'].shift(1).ffill().clip(-10, 10)
-pos = df['signal'].fillna(0.0) # vbt fa già lo shift(1) 
+pos = df['signal'].fillna(0.0) # vbt already include shift(1) for the trade
 gross = 1.0 + beta_lag.abs()
 
 w_y =  pos / gross                 
