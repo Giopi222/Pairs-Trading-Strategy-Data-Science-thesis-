@@ -159,7 +159,7 @@ def generate_signals(df, entry_thresh, exit_thresh, HMM=True):
 
     return sig
 
-
+df['signal'] = generate_signals(df, entry_thresh=entry_t, exit_thresh=exit_t, HMM=True) # already shifted by VBT
 
 
 # 5. Backtest 
