@@ -13,6 +13,7 @@ df = pd.DataFrame(data)
 
 entry_t = 0.6
 exit_t  = 0.5
+HMM_switch = True
 
 # 1. Kalman filter
 def stima_QR_EM(df_train, em_iter=50): # Estimate Q and R
@@ -159,7 +160,7 @@ def generate_signals(df, entry_thresh, exit_thresh, HMM=True):
 
     return sig
 
-df['signal'] = generate_signals(df, entry_thresh=entry_t, exit_thresh=exit_t, HMM=True) # already shifted by VBT
+df['signal'] = generate_signals(df, entry_thresh=entry_t, exit_thresh=exit_t, HMM=HMM_switch) # already shifted by VBT
 
 
 # 5. Backtest 
