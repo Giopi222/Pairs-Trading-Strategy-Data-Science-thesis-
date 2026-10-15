@@ -7,4 +7,4 @@ The methodology primarily integrates two advanced tools: the Kalman filter, empl
 
 The aim is NOT to propose a strategy capable of “beating the market” or generating extraordinary profits, but rather to outline a rigorous methodological framework for the design, estimation, and validation of advanced trading strategies, with particular emphasis on avoiding common biases. Indeed, many strategies presented in the literature or online often display seemingly exceptional results that are not replicable due to improper data usage or insufficient methodological robustness.
 
-The main, optimized, and minimal version of the code is in the strategy.py file, while the complete version — including analysis, plots, and tests — is available in the notebook.
+The main, optimized, and minimal version of the code is in the strategy.py file, while the complete version (including analysis, plots, and tests) is available in the notebook.
